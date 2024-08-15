@@ -1,0 +1,53 @@
+
+
+spring:
+  application:
+    name: GATEWAY-SERVER
+  config:
+    import: configserver:http://localhost:8071
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+      routes:
+        - id: RESERVATION-SERVICE
+          uri: lb://RESERVATION-SERVICE
+          predicates:
+              - Path=/reservationApi/**
+
+        - id: PAYMENT-SERVICE
+          uri: lb://PAYMENT-SERVICE
+          predicates:
+              - Path=/paymentApi/**
+        - id: HOTEL-SERVICE
+          uri: lb://HOTEL-SERVICE
+          predicates:
+                  - Path=/hotelApi/**
+        - id: GUEST-SERVICE
+          uri: lb://GUEST-SERVICE
+          predicates:
+              - Path=/customerApi/**
+
+
+logging:
+  level:
+    root: DEBUG
+    io.micrometer: DEBUG
+    brave: DEBUG
+
+management:
+  tracing:
+    sampling:
+      probability: 1.0 # Set the sampling probability (1.0 = 100%)
+  otlp:
+    tracing:
+      endpoint: http://localhost:9411/api/v2/spans
+  endpoints:
+    web:
+      exposure:
+        include: prometheus
+
+server:
+  port: 8072
